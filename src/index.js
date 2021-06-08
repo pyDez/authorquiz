@@ -66,14 +66,21 @@ function getTurnData(authors) {
     }
 }
 
-const state = {
-    turnData: getTurnData(authors),
-    highlight: '',
-}
+let state = resetState();
 
 function onAnswerSelected(answer) {
     const isCorrect = state.turnData.author.books.some((book) => book === answer);
     state.highlight = isCorrect ? 'correct' : 'wrong';
+    render();
+}
+function resetState() {
+    return {
+        turnData: getTurnData(authors),
+        highlight: '',
+    }
+}
+function onContinue() {
+    state = resetState();
     render();
 }
 
@@ -88,7 +95,7 @@ function render() {
     ReactDOM.render(
         <BrowserRouter>
             <Route exact path="/"
-                   render={(props) => <AuthorQuiz {...state} onAnswerSelected={onAnswerSelected}/>}></Route>
+                   render={(props) => <AuthorQuiz {...state} onAnswerSelected={onAnswerSelected} onContinue={onContinue}/>}></Route>
             <Route path="/add" component={AuthorWrapper}/>
         </BrowserRouter>,
         document.getElementById('root')
