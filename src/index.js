@@ -5,8 +5,10 @@ import AuthorQuiz from './AuthorQuiz';
 import reportWebVitals from './reportWebVitals';
 import {sample, shuffle} from "underscore";
 import {BrowserRouter, Route} from "react-router-dom";
-import { withRouter } from 'react-router'
+import {withRouter} from 'react-router'
 import AddAuthorForm from "./AddAuthorForm";
+import * as Redux from 'redux';
+import * as ReactRedux from 'react-redux';
 
 const authors = [
     {
@@ -66,43 +68,40 @@ function getTurnData(authors) {
     }
 }
 
-let state = resetState();
+function reducer(state = {
+    authors, turnData: getTurnData(authors),
+    highlight: '',
+}, action) {
 
-function onAnswerSelected(answer) {
-    const isCorrect = state.turnData.author.books.some((book) => book === answer);
-    state.highlight = isCorrect ? 'correct' : 'wrong';
-    render();
-}
-function resetState() {
-    return {
-        turnData: getTurnData(authors),
-        highlight: '',
+    switch (action.type) {
+        case 'ANSWER_SELECTED' :
+            const isCorrect = state.turnData.author.books.some((book) => book === action.answer);
+            return Object.assign({}, state,
+                {highlight: isCorrect ? 'correct' : 'wrong'});
+        case 'CONTINUE' :
+            return Object.assign({}, state,
+                {highlight: '', turnData: getTurnData(state.authors)});
+        case 'ADD_AUTHOR' :
+            return Object.assign({}, state,
+                {authors: state.authors.concat([action.author])});
+        default:
+            return state;
     }
 }
-function onContinue() {
-    state = resetState();
-    render();
-}
 
-const AuthorWrapper = withRouter(({history}) =>
-    <AddAuthorForm onAddAuthor={(author) => {
-        authors.push(author);
-        history.push('/');
-    }}/>
-)
+let store = Redux.createStore(reducer, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
 
-function render() {
-    ReactDOM.render(
-        <BrowserRouter>
+
+ReactDOM.render(
+    <BrowserRouter>
+        <ReactRedux.Provider store={store}>
             <Route exact path="/"
-                   render={(props) => <AuthorQuiz {...state} onAnswerSelected={onAnswerSelected} onContinue={onContinue}/>}></Route>
-            <Route path="/add" component={AuthorWrapper}/>
-        </BrowserRouter>,
-        document.getElementById('root')
-    );
-}
-
-render();
+                   component={AuthorQuiz}></Route>
+            <Route path="/add" component={AddAuthorForm}/>
+        </ReactRedux.Provider>
+    </BrowserRouter>,
+    document.getElementById('root')
+);
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
