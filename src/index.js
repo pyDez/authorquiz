@@ -4,6 +4,7 @@ import './index.css';
 import AuthorQuiz from './AuthorQuiz';
 import reportWebVitals from './reportWebVitals';
 import {sample, shuffle} from "underscore";
+import {BrowserRouter, Route, Link} from "react-router-dom";
 
 const authors = [
     {
@@ -68,8 +69,8 @@ const state = {
     highlight: '',
 }
 
-function onAnswerSelected (answer) {
-    const isCorrect = state.turnData.author.books.some((book)=> book === answer);
+function onAnswerSelected(answer) {
+    const isCorrect = state.turnData.author.books.some((book) => book === answer);
     state.highlight = isCorrect ? 'correct' : 'wrong';
     render();
 }
@@ -77,7 +78,16 @@ function onAnswerSelected (answer) {
 function render() {
     ReactDOM.render(
         <React.StrictMode>
-            <AuthorQuiz {...state} onAnswerSelected={onAnswerSelected}/>
+            <BrowserRouter>
+                <Route path="/Quiz"
+                       render={(props) => <AuthorQuiz {...state} onAnswerSelected={onAnswerSelected}/>}></Route>
+                <Route path="/Form" ></Route>
+                <Link to="/Quiz">Let's try your knowledge on the Author Quiz</Link><br/>
+                <Link to="/Form">A simple form experimentation</Link>
+            </BrowserRouter>
+
+
+            {/*<AuthorQuiz {...state} onAnswerSelected={onAnswerSelected}/>*/}
         </React.StrictMode>,
         document.getElementById('root')
     );
