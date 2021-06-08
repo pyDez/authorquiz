@@ -1,10 +1,12 @@
-import React from 'react';
+import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import AuthorQuiz from './AuthorQuiz';
 import reportWebVitals from './reportWebVitals';
 import {sample, shuffle} from "underscore";
-import {BrowserRouter, Route, Link} from "react-router-dom";
+import {BrowserRouter, Route} from "react-router-dom";
+import { withRouter } from 'react-router'
+import AddAuthorForm from "./AddAuthorForm";
 
 const authors = [
     {
@@ -75,20 +77,20 @@ function onAnswerSelected(answer) {
     render();
 }
 
+const AuthorWrapper = withRouter(({history}) =>
+    <AddAuthorForm onAddAuthor={(author) => {
+        authors.push(author);
+        history.push('/');
+    }}/>
+)
+
 function render() {
     ReactDOM.render(
-        <React.StrictMode>
-            <BrowserRouter>
-                <Route path="/Quiz"
-                       render={(props) => <AuthorQuiz {...state} onAnswerSelected={onAnswerSelected}/>}></Route>
-                <Route path="/Form" ></Route>
-                <Link to="/Quiz">Let's try your knowledge on the Author Quiz</Link><br/>
-                <Link to="/Form">A simple form experimentation</Link>
-            </BrowserRouter>
-
-
-            {/*<AuthorQuiz {...state} onAnswerSelected={onAnswerSelected}/>*/}
-        </React.StrictMode>,
+        <BrowserRouter>
+            <Route exact path="/"
+                   render={(props) => <AuthorQuiz {...state} onAnswerSelected={onAnswerSelected}/>}></Route>
+            <Route path="/add" component={AuthorWrapper}/>
+        </BrowserRouter>,
         document.getElementById('root')
     );
 }

@@ -1,7 +1,6 @@
 import './bootstrap.min.css'
 import './App.css'
-import {Component} from "react";
-
+import {Link} from "react-router-dom";
 
 function Hero() {
     return (
@@ -23,7 +22,6 @@ function Book({title, onClick}) {
         </div>
     );
 }
-
 
 function Turn({author, books, highlight, onAnswerSelected}) {
     function highlightToBgColor(highlight) {
@@ -67,10 +65,12 @@ function AuthorQuiz({turnData, highlight, onAnswerSelected}) {
             <Hero/>
             <Turn {...turnData} highlight={highlight} onAnswerSelected={onAnswerSelected}/>
             <Continue/>
+            <p>
+                <Link to="/add">Add an author</Link>
+            </p>
             <Footer/>
         </div>
     );
 }
 
 export default AuthorQuiz;
-export {Book};
