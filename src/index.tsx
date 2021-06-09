@@ -9,8 +9,28 @@ import {withRouter} from 'react-router'
 import AddAuthorForm from "./AddAuthorForm";
 import * as Redux from 'redux';
 import * as ReactRedux from 'react-redux';
+import { composeWithDevTools } from 'redux-devtools-extension';
 
-const authors = [
+interface author {
+    name: string,
+    imageUrl: string,
+    imageSource: string,
+    books: string[],
+    imageAttribution?: string,
+}
+
+interface state {
+    authors:author[],
+    turnData: turnData,
+    highlight: string,
+}
+
+interface turnData {
+    author:author,
+    books: string[],
+}
+
+const authors : author[] = [
     {
         name: 'Mark Twain',
         imageUrl: 'images/authors/MarkTwain.jpg',
@@ -53,25 +73,35 @@ const authors = [
     },
 ]
 
-function getTurnData(authors) {
-    const allBooks = authors.reduce(function (p, c, i) {
+function getTurnData(authors: author[]): turnData {
+    const allBooks = authors.reduce(function (p:string[], c:author, i:number) {
         return p.concat(c.books);
     }, [])
 
     const fourRandomBooks = shuffle(allBooks).slice(0, 4);
     const answer = sample(fourRandomBooks);
 
-    return {
+    const turnData = {
         books: fourRandomBooks,
-        author: authors.find((author) =>
-            author.books.some((title) => title === answer))
+        author: ensure(authors.find((author) =>
+            author.books.some((title) => title === answer)))
     }
+
+    return turnData;
 }
 
-function reducer(state = {
+function ensure<T>(argument: T | undefined | null, message: string = 'This value was promised to be there.'): T {
+    if (argument === undefined || argument === null) {
+        throw new TypeError(message);
+    }
+
+    return argument;
+}
+
+function reducer(state : state = {
     authors, turnData: getTurnData(authors),
     highlight: '',
-}, action) {
+}, action: Redux.AnyAction) {
 
     switch (action.type) {
         case 'ANSWER_SELECTED' :
@@ -89,7 +119,7 @@ function reducer(state = {
     }
 }
 
-let store = Redux.createStore(reducer, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
+let store = Redux.createStore(reducer, composeWithDevTools());
 
 
 ReactDOM.render(
